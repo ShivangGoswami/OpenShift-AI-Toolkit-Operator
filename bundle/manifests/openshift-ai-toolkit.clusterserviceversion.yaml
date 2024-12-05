@@ -1,0 +1,264 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "ai-toolkit.ibm.com/v1alpha1",
+          "kind": "TritonInterfaceServer",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "openshift-ai-toolkit"
+            },
+            "name": "tritoninterfaceserver-sample"
+          },
+          "spec": {
+            "mountPath": "/mount",
+            "pvcName": "triton-pvc",
+            "servers": [
+              {
+                "enabled": true,
+                "type": "HTTP"
+              },
+              {
+                "enabled": true,
+                "type": "Metrics"
+              }
+            ]
+          }
+        }
+      ]
+    capabilities: Basic Install
+    createdAt: "2024-12-05T14:08:03Z"
+    operators.operatorframework.io/builder: operator-sdk-v1.38.0
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+  labels:
+    operatorframework.io/arch.s390x: supported
+    operatorframework.io/os.linux: supported
+  name: openshift-ai-toolkit.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: TritonInterfaceServer is the Schema for the tritoninterfaceservers
+        API
+      displayName: Triton Interface Server
+      kind: TritonInterfaceServer
+      name: tritoninterfaceservers.ai-toolkit.ibm.com
+      version: v1alpha1
+  description: This operator provides Deployment Server for various models available
+    on IBM Z
+  displayName: Openshift AI Toolkit For IBM Z
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ai-toolkit.ibm.com
+          resources:
+          - tritoninterfaceservers
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ai-toolkit.ibm.com
+          resources:
+          - tritoninterfaceservers/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ai-toolkit.ibm.com
+          resources:
+          - tritoninterfaceservers/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes/custom-host
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: openshift-ai-toolkit-controller-manager
+      deployments:
+      - label:
+          app.kubernetes.io/managed-by: kustomize
+          app.kubernetes.io/name: openshift-ai-toolkit
+          control-plane: controller-manager
+        name: openshift-ai-toolkit-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              annotations:
+                kubectl.kubernetes.io/default-container: manager
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - --metrics-bind-address=:8443
+                - --leader-elect
+                - --health-probe-bind-address=:8081
+                command:
+                - /manager
+                image: quay.io/openshift-ai-toolkit/openshift-ai-toolkit-operator-controller:latest
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                name: manager
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                resources:
+                  limits:
+                    cpu: 500m
+                    memory: 128Mi
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+              securityContext:
+                runAsNonRoot: true
+              serviceAccountName: openshift-ai-toolkit-controller-manager
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: openshift-ai-toolkit-controller-manager
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - ai
+  - triton
+  - openshift-on-z
+  links:
+  - name: Openshift Ai Toolkit
+    url: https://openshift-ai-toolkit.domain
+  maintainers:
+  - email: rishika.kedia@in.ibm.com
+    name: Rishika Kedia
+  - email: shivang.goswami1@ibm.com
+    name: Shivang Goswami
+  maturity: alpha
+  provider:
+    name: ISDL, IBM
+  version: 0.0.1

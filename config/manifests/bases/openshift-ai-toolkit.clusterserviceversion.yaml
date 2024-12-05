@@ -1,0 +1,56 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  labels:
+    operatorframework.io/arch.s390x: supported
+    operatorframework.io/os.linux: supported
+  name: openshift-ai-toolkit.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: TritonInterfaceServer is the Schema for the tritoninterfaceservers
+        API
+      displayName: Triton Interface Server
+      kind: TritonInterfaceServer
+      name: tritoninterfaceservers.ai-toolkit.ibm.com
+      version: v1alpha1
+  description: This operator provides Deployment Server for various models available
+    on IBM Z
+  displayName: Openshift AI Toolkit For IBM Z
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - ai
+  - triton
+  - openshift-on-z
+  links:
+  - name: Openshift Ai Toolkit
+    url: https://openshift-ai-toolkit.domain
+  maintainers:
+  - email: rishika.kedia@in.ibm.com
+    name: Rishika Kedia
+  - email: shivang.goswami1@ibm.com
+    name: Shivang Goswami
+  maturity: alpha
+  provider:
+    name: ISDL, IBM
+  version: 0.0.0
