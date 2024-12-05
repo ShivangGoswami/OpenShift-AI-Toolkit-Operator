@@ -13,3 +13,10 @@ spec:
       enabled: true
     - type: Metrics
       enabled: true
+  podResources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 200Mi

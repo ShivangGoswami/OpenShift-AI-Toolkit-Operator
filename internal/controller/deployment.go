@@ -57,7 +57,7 @@ func (r *TritonInterfaceServerReconciler) deploymentForModelServing(tis *aitoolk
 	if memRequest, err := resource.ParseQuantity(tis.Spec.PodResources.Limits.Memory); err == nil {
 		limits[corev1.ResourceMemory] = memRequest
 	}
-	deployForModelServing.Spec.Template.Spec.Containers[0].Resources.Requests = limits
+	deployForModelServing.Spec.Template.Spec.Containers[0].Resources.Limits = limits
 	//assign servers
 	enabledservers := make(map[int]bool)
 	for _, server := range tis.Spec.Servers {
