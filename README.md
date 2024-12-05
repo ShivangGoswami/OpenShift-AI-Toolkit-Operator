@@ -146,4 +146,71 @@ Attaching sample Output for Reference:
  ```
 </details>
 
+### Step 2: Creating the Custom CRDs
+
+Assuming that operator was installed successfully and the custom crds can be applied now
+
+#### Triton Server Interface CRD
+### TritonInterfaceServerSpec Variables
+
+| **Variable Name**    | **Sample Value**                                                                                     | **Explanation**                                                                                   |
+|-----------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `pvcName`            | `"triton-pvc"`                                                                                     | Name of the Persistent Volume Claim (PVC) to be used.                                             |
+| `mountPath`          | `"/mnt/data"`                                                                                      | Path where the PVC will be mounted in the container.                                              |
+| `servingImage`       | `"icr.io/ibmz/ibmz-accelerated-for-nvidia-triton-inference-server@sha256:2cedd535805c316..."`       | The Docker image used for the Triton inference server.                                            |
+| `servers`            | `[{"type": "HTTP", "enabled": true, "containerPort": 8000}]`                                       | List of server configurations including type, whether enabled, and container port.                |
+| `podResources`       | `{"limits": {"cpu": "2", "memory": "2Gi"}, "requests": {"cpu": "1", "memory": "1Gi"}}`             | Resource requests and limits for the pod (CPU and memory).                                        |
+
+---
+
+### `Server` Variables
+
+| **Variable Name**     | **Sample Value** | **Explanation**                                                                                     |
+|------------------------|------------------|-----------------------------------------------------------------------------------------------------|
+| `type`                | `"HTTP"`         | The type of server. Valid values are `HTTP`, `GRPC`, or `Metrics`.                                  |
+| `enabled`             | `true`           | Whether the server type is enabled.                                                                |
+| `containerPort`       | `8000`           | Port exposed by the container. Must be between 0 and 65535.                                         |
+
+---
+
+### `Resource` and `PodResource` Variables
+
+| **Variable Name**     | **Sample Value**       | **Explanation**                                                                                     |
+|------------------------|------------------------|-----------------------------------------------------------------------------------------------------|
+| `limits.cpu`          | `"2"`                 | Maximum number of CPU cores allocated to the pod.                                                   |
+| `limits.memory`       | `"2Gi"`               | Maximum memory allocated to the pod.                                                               |
+| `requests.cpu`        | `"1"`                 | Minimum guaranteed number of CPU cores allocated to the pod.                                        |
+| `requests.memory`     | `"1Gi"`               | Minimum guaranteed memory allocated to the pod.                                                    |
+
+There is a sample crd within the repo as well
+
+```sh
+(base) shivanggoswami@Shivangs-MacBook-Pro samples % pwd
+/Users/shivanggoswami/Documents/toolkit-new/config/samples
+(base) shivanggoswami@Shivangs-MacBook-Pro samples % cat ai-toolkit_v1alpha1_tritoninterfaceserver.yaml 
+apiVersion: ai-toolkit.ibm.com/v1alpha1
+kind: TritonInterfaceServer
+metadata:
+  labels:
+    app.kubernetes.io/name: openshift-ai-toolkit
+    app.kubernetes.io/managed-by: kustomize
+  name: tritoninterfaceserver-sample
+spec:
+  pvcName: triton-pvc
+  mountPath: "/mount"
+  servers:
+    - type: HTTP
+      enabled: true
+    - type: Metrics
+      enabled: true
+  podResources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+```
+
+Once the CRD is applied to a particular namespace, deployments, services and routes will be created for the same.
 
