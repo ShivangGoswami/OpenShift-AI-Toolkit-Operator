@@ -247,7 +247,7 @@ route.route.openshift.io/http-route-triton-server-624c8ff1-triton-pvc      http-
 route.route.openshift.io/metrics-route-triton-server-624c8ff1-triton-pvc   metrics-route-triton-server-624c8ff1-triton-pvc-triton-ns.apps.t313lp68ocp.lnxne.boe          metrics-service-triton-server-624c8ff1-triton-pvc   8002                 None
 ```
 
-Via this example we have created two route one fot http server and one for metrics server
+Via this example we have created two route one for http server and one for metrics server
 
 Sample Http Request
 <details>
