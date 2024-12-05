@@ -2,7 +2,7 @@ apiVersion: ai-toolkit.ibm.com/v1alpha1
 kind: TritonInterfaceServer
 metadata:
   labels:
-    app.kubernetes.io/name: toolkit-new
+    app.kubernetes.io/name: openshift-ai-toolkit
     app.kubernetes.io/managed-by: kustomize
   name: tritoninterfaceserver-sample
 spec:

@@ -28,8 +28,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# ibm.com/toolkit-new-bundle:$VERSION and ibm.com/toolkit-new-catalog:$VERSION.
-IMAGE_TAG_BASE ?= ibm.com/toolkit-new
+# github.com/openshift-ai-toolkit-operator-bundle:$VERSION and github.com/openshift-ai-toolkit-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= quay.io/openshift-ai-toolkit/openshift-ai-toolkit-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
@@ -50,7 +50,7 @@ endif
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.38.0
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= $(IMAGE_TAG_BASE)-controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.30.0
 
@@ -159,10 +159,10 @@ PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
 docker-buildx: ## Build and push docker image for the manager for cross-platform support
 	# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
-	- $(CONTAINER_TOOL) buildx create --name toolkit-new-builder
-	$(CONTAINER_TOOL) buildx use toolkit-new-builder
+	- $(CONTAINER_TOOL) buildx create --name openshift-ai-toolkit-operator-builder
+	$(CONTAINER_TOOL) buildx use openshift-ai-toolkit-operator-builder
 	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross .
-	- $(CONTAINER_TOOL) buildx rm toolkit-new-builder
+	- $(CONTAINER_TOOL) buildx rm openshift-ai-toolkit-operator-builder
 	rm Dockerfile.cross
 
 .PHONY: build-installer

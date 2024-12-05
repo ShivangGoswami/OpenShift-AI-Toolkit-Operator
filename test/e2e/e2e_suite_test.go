@@ -27,6 +27,6 @@ import (
 // Run e2e tests using the Ginkgo runner.
 func TestE2E(t *testing.T) {
 	RegisterFailHandler(Fail)
-	_, _ = fmt.Fprintf(GinkgoWriter, "Starting toolkit-new suite\n")
+	_, _ = fmt.Fprintf(GinkgoWriter, "Starting openshift-ai-toolkit suite\n")
 	RunSpecs(t, "e2e suite")
 }
