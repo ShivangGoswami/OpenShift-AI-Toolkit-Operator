@@ -21,3 +21,6 @@
 go.work
 
 bin/*
+.DS_STORE
+env.sh
+pull-secret-*
