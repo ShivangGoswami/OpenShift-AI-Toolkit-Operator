@@ -214,3 +214,131 @@ spec:
 
 Once the CRD is applied to a particular namespace, deployments, services and routes will be created for the same.
 
+## Using the Endpoints
+
+In a test cluster, the following resources were created in the order
+
+- Injected ICR config to global secret using the script mentioned above
+- Created namespace "triton-ns"
+- Used Sample models provided with the documentation and create pvc using the script within the same namespace
+- installed the operator
+- Applied the sample crd (via UI or server-side in cli) within the same namespace
+- Check the resources created within the namespace
+
+```sh
+[root@t313lp68 operator-examples]# oc get all -n triton-ns
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+NAME                                                    READY   STATUS    RESTARTS      AGE
+pod/alpine-pvc-pod                                      1/1     Running   1 (21m ago)   82m
+pod/triton-server-624c8ff1-triton-pvc-9f55c95c9-7pfcq   1/1     Running   0             93s
+
+NAME                                                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/http-service-triton-server-624c8ff1-triton-pvc      ClusterIP   172.30.18.30    <none>        80/TCP    93s
+service/metrics-service-triton-server-624c8ff1-triton-pvc   ClusterIP   172.30.58.196   <none>        80/TCP    93s
+
+NAME                                                READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/triton-server-624c8ff1-triton-pvc   1/1     1            1           93s
+
+NAME                                                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/triton-server-624c8ff1-triton-pvc-9f55c95c9   1         1         1       93s
+
+NAME                                                                       HOST/PORT                                                                              PATH   SERVICES                                            PORT   TERMINATION   WILDCARD
+route.route.openshift.io/http-route-triton-server-624c8ff1-triton-pvc      http-route-triton-server-624c8ff1-triton-pvc-triton-ns.apps.t313lp68ocp.lnxne.boe             http-service-triton-server-624c8ff1-triton-pvc      8000                 None
+route.route.openshift.io/metrics-route-triton-server-624c8ff1-triton-pvc   metrics-route-triton-server-624c8ff1-triton-pvc-triton-ns.apps.t313lp68ocp.lnxne.boe          metrics-service-triton-server-624c8ff1-triton-pvc   8002                 None
+```
+
+Via this example we have created two route one fot http server and one for metrics server
+
+Sample Http Request
+<details>
+  <summary>Click to expand the shell command</summary>
+
+```sh
+[root@t313lp68 operator-examples]# curl -X POST http://http-route-triton-server-624c8ff1-triton-pvc-triton-ns.apps.t313lp68ocp.lnxne.boe/v2/repository/index | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   119  100   119    0     0  39666      0 --:--:-- --:--:-- --:--:-- 59500
+[
+  {
+    "name": "cc_fraud_detect_model",
+    "version": "1",
+    "state": "READY"
+  },
+  {
+    "name": "densenet_onnx",
+    "version": "1",
+    "state": "READY"
+  }
+]
+```
+</details>
+
+Sample Metrics Request
+<details>
+  <summary>Click to expand the shell command</summary>
+
+```sh
+[root@t313lp68 operator-examples]# curl metrics-route-triton-server-624c8ff1-triton-pvc-triton-ns.apps.t313lp68ocp.lnxne.boe/metrics
+# HELP nv_inference_request_success Number of successful inference requests, all batch sizes
+# TYPE nv_inference_request_success counter
+nv_inference_request_success{model="densenet_onnx",version="1"} 0
+nv_inference_request_success{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_request_failure Number of failed inference requests, all batch sizes
+# TYPE nv_inference_request_failure counter
+nv_inference_request_failure{model="densenet_onnx",reason="OTHER",version="1"} 0
+nv_inference_request_failure{model="densenet_onnx",reason="BACKEND",version="1"} 0
+nv_inference_request_failure{model="densenet_onnx",reason="CANCELED",version="1"} 0
+nv_inference_request_failure{model="cc_fraud_detect_model",reason="OTHER",version="1"} 0
+nv_inference_request_failure{model="cc_fraud_detect_model",reason="BACKEND",version="1"} 0
+nv_inference_request_failure{model="cc_fraud_detect_model",reason="CANCELED",version="1"} 0
+nv_inference_request_failure{model="densenet_onnx",reason="REJECTED",version="1"} 0
+nv_inference_request_failure{model="cc_fraud_detect_model",reason="REJECTED",version="1"} 0
+# HELP nv_inference_count Number of inferences performed (does not include cached requests)
+# TYPE nv_inference_count counter
+nv_inference_count{model="densenet_onnx",version="1"} 0
+nv_inference_count{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_exec_count Number of model executions performed (does not include cached requests)
+# TYPE nv_inference_exec_count counter
+nv_inference_exec_count{model="densenet_onnx",version="1"} 0
+nv_inference_exec_count{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_request_duration_us Cumulative inference request duration in microseconds (includes cached requests)
+# TYPE nv_inference_request_duration_us counter
+nv_inference_request_duration_us{model="densenet_onnx",version="1"} 0
+nv_inference_request_duration_us{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_queue_duration_us Cumulative inference queuing duration in microseconds (includes cached requests)
+# TYPE nv_inference_queue_duration_us counter
+nv_inference_queue_duration_us{model="densenet_onnx",version="1"} 0
+nv_inference_queue_duration_us{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_compute_input_duration_us Cumulative compute input duration in microseconds (does not include cached requests)
+# TYPE nv_inference_compute_input_duration_us counter
+nv_inference_compute_input_duration_us{model="densenet_onnx",version="1"} 0
+nv_inference_compute_input_duration_us{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_compute_infer_duration_us Cumulative compute inference duration in microseconds (does not include cached requests)
+# TYPE nv_inference_compute_infer_duration_us counter
+nv_inference_compute_infer_duration_us{model="densenet_onnx",version="1"} 0
+nv_inference_compute_infer_duration_us{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_compute_output_duration_us Cumulative inference compute output duration in microseconds (does not include cached requests)
+# TYPE nv_inference_compute_output_duration_us counter
+nv_inference_compute_output_duration_us{model="densenet_onnx",version="1"} 0
+nv_inference_compute_output_duration_us{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_inference_pending_request_count Instantaneous number of pending requests awaiting execution per-model.
+# TYPE nv_inference_pending_request_count gauge
+nv_inference_pending_request_count{model="densenet_onnx",version="1"} 0
+nv_inference_pending_request_count{model="cc_fraud_detect_model",version="1"} 0
+# HELP nv_pinned_memory_pool_total_bytes Pinned memory pool total memory size, in bytes
+# TYPE nv_pinned_memory_pool_total_bytes gauge
+nv_pinned_memory_pool_total_bytes 268435456
+# HELP nv_pinned_memory_pool_used_bytes Pinned memory pool used memory size, in bytes
+# TYPE nv_pinned_memory_pool_used_bytes gauge
+nv_pinned_memory_pool_used_bytes 0
+# HELP nv_cpu_utilization CPU utilization rate [0.0 - 1.0]
+# TYPE nv_cpu_utilization gauge
+nv_cpu_utilization 0.02255639097744361
+# HELP nv_cpu_memory_total_bytes CPU total memory (RAM), in bytes
+# TYPE nv_cpu_memory_total_bytes gauge
+nv_cpu_memory_total_bytes 16861294592
+# HELP nv_cpu_memory_used_bytes CPU used memory (RAM), in bytes
+# TYPE nv_cpu_memory_used_bytes gauge
+nv_cpu_memory_used_bytes 4000546816
+```
+</details>
