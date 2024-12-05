@@ -7,7 +7,7 @@ This operator provides Deployment Server for various models available on IBM Z
 ## PREREQUISITES
 - IBM Cloud Account
 - Openshift Cluster on IBM Z
-- Openshift Client
+- Openshift Client CLI
  
 ## Installation
 
