@@ -40,7 +40,10 @@ jobs:
         #builds
         - name: Docker build and push using dockerbuildx
           run: |
-            make docker-build docker-push   
+            docker build --platform linux/s390x -t ${{ IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.VERSION }} .
+            make docker-push   
         - name: Bundle build and push
           run: |
-            make bundle bundle-build bundle-push 
+            make bundle 
+            docker build -f bundle.Dockerfile -t ${{ IMAGE_TAG_BASE }}-bundle:v${{ github.event.inputs.VERSION }} .
+            make bundle-push 
