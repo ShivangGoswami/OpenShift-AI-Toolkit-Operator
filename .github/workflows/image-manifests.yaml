@@ -14,7 +14,6 @@ jobs:
     env:
       IMAGE_TAG_BASE: 'quay.io/openshift-ai-toolkit/openshift-ai-toolkit-operator-test'
       PLATFORMS: 'linux/s390x'
-      IMG: '${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }}'
     steps: 
       # Prerequisite
       - name: Checkout repository
@@ -41,6 +40,8 @@ jobs:
           password: ${{ secrets.CR_SECRET }}
       # Builds
       - name: Docker build and push using Buildx
+        env:
+          IMG: '${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }}'
         run: |
           make docker-buildx
       - name: Bundle build and push
