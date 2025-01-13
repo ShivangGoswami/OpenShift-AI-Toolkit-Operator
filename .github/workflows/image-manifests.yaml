@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_TAG_BASE: 'quay.io/openshift-ai-toolkit/openshift-ai-toolkit-operator-test'
+      PLATFORMS: 'linux/s390x'
+      IMG: '${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }}'
     steps: 
       # Prerequisite
       - name: Checkout repository
@@ -40,8 +42,7 @@ jobs:
       # Builds
       - name: Docker build and push using Buildx
         run: |
-          docker build --platform linux/s390x -t ${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }} .
-          make docker-push
+          make docker-buildx
       - name: Bundle build and push
         run: |
           make bundle
