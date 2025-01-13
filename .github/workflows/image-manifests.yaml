@@ -44,6 +44,7 @@ jobs:
       - name: Bundle build and push
         env:
           VERSION: '${{ github.event.inputs.version }}'
+          DOCKER_DEFAULT_PLATFORM: '${{ env.PLATFORMS }}'
           IMG: '${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }}'
         run: |
           make bundle bundle-build bundle-push
