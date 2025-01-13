@@ -51,7 +51,7 @@ jobs:
           sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' bundle.Dockerfile > bundle.Dockerfile.cross
           ${{ env.CONTAINER_TOOL }} buildx create --name openshift-ai-toolkit-operator-builder
           ${{ env.CONTAINER_TOOL }} buildx use openshift-ai-toolkit-operator-builder
-          ${{ env.CONTAINER_TOOL }} buildx build --push --platform=${{ env.PLATFORMS }} --tag ${{ env.BUNDLE_IMG }}-f bundle.Dockerfile.cross .
+          ${{ env.CONTAINER_TOOL }} buildx build --push --platform=${{ env.PLATFORMS }} --tag ${{ env.BUNDLE_IMG }} -f bundle.Dockerfile.cross .
           ${{ env.CONTAINER_TOOL }} buildx rm openshift-ai-toolkit-operator-builder
           rm bundle.Dockerfile.cross
       - name: Catalog build and push
