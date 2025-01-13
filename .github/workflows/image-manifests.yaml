@@ -14,6 +14,7 @@ jobs:
     env:
       IMAGE_TAG_BASE: 'quay.io/openshift-ai-toolkit/openshift-ai-toolkit-operator-test'
       PLATFORMS: 'linux/s390x'
+      CONTAINER_TOOL: 'docker'
     steps: 
       # Prerequisite
       - name: Checkout repository
@@ -43,11 +44,16 @@ jobs:
           make docker-buildx
       - name: Bundle build and push
         env:
-          VERSION: '${{ github.event.inputs.version }}'
-          DOCKER_DEFAULT_PLATFORM: '${{ env.PLATFORMS }}'
           IMG: '${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }}'
+          BUNDLE_IMG: '{{ env.IMAGE_TAG_BASE }}-bundle:v${{ github.event.inputs.version }}'
         run: |
-          make bundle bundle-build bundle-push
+          make bundle
+          sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' bundle.Dockerfile > bundle.Dockerfile.cross
+          ${{ env.CONTAINER_TOOL }} buildx create --name openshift-ai-toolkit-operator-builder
+          ${{ env.CONTAINER_TOOL }} buildx use openshift-ai-toolkit-operator-builder
+          ${{ env.CONTAINER_TOOL }} buildx build --push --platform=$(PLATFORMS) --tag ${{ env.BUNDLE_IMG }}-f bundle.Dockerfile.cross .
+          ${{ env.CONTAINER_TOOL }} buildx rm openshift-ai-toolkit-operator-builder
+          rm bundle.Dockerfile.cross
       - name: Catalog build and push
         env:
           VERSION: '${{ github.event.inputs.version }}'
