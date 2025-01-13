@@ -50,6 +50,7 @@ jobs:
       - name: Catalog build and push
         env:
           VERSION: '${{ github.event.inputs.version }}'
+          DOCKER_DEFAULT_PLATFORM: '${{ env.PLATFORMS }}'
         run: |
           make catalog-build catalog-push
         
