@@ -45,7 +45,8 @@ jobs:
         run: |
           make docker-buildx
       - name: Bundle build and push
+        env:
+          IMG: '${{ env.IMAGE_TAG_BASE }}-controller:v${{ github.event.inputs.version }}'
+          BUNDLE_IMG: '${{ env.IMAGE_TAG_BASE }}-bundle:v${{ github.event.inputs.version }}'
         run: |
-          make bundle
-          docker build -f bundle.Dockerfile -t ${{ env.IMAGE_TAG_BASE }}-bundle:v${{ github.event.inputs.version }} .
-          make bundle-push
+          make bundle bundle-build bundle-push
